@@ -1,0 +1,23 @@
+#include <mpi.h>
+#include <stdio.h>
+
+int main(int argc, char** argv){
+    int r, s, m;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &s);
+    MPI_Comm_rank(MPI_COMM_WORLD, &r);
+    if(r == 0){
+        m = 42;
+        MPI_Send(&m, 1, MPI_INT, 1, 1, MPI_COMM_WORLD);
+        printf("%d is sent from %d to process 1\n", m, r);
+    } else if(r == 1){
+        MPI_Recv(&m, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("process 1 received %d from process 0\n", m);
+    }
+    MPI_Finalize();
+    return 0;
+}
+
+
+mpicc p5.c -o p5
+mpirun -np 2 ./p5
