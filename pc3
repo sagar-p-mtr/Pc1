@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <omp.h>
+
+int fib_recursive_omp(int n){
+    int x,y;
+    if(n<2)return n;
+    #pragma omp task shared(x)
+    x=fib_recursive_omp(n-1);
+    #pragma omp task shared(y)
+    y=fib_recursive_omp(n-2);
+    #pragma omp taskwait
+    return x+y;
+}
+
+int main(){
+    int n=10;
+    double start_time,end_time;
+    #pragma omp parallel shared(n)
+    {
+        #pragma omp single
+        {
+            start_time=omp_get_wtime();
+            printf("fib(%d) = %d\n",n,fib_recursive_omp(n));
+            end_time=omp_get_wtime();
+            printf("Time taken: %f seconds\n",end_time-start_time);
+        }
+    }
+    return 0;
+}
+
+
+
+gcc -fopenmp p1.c
+
+./a.out
